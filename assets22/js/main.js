@@ -141,13 +141,13 @@
           columnWidth: '.cs_grid_sizer',
         },
       });
-      /* Active Class of Portfolio*/
+      /* Active Class of Project*/
       $('.cs_isotop_filter ul li').on('click', function (event) {
         $(this).siblings('.active').removeClass('active');
         $(this).addClass('active');
         event.preventDefault();
       });
-      /*=== Portfolio filtering ===*/
+      /*=== Project filtering ===*/
       $('.cs_isotop_filter ul').on('click', 'a', function () {
         var filterElement = $(this).attr('data-filter');
         $('.cs_isotop').isotope({

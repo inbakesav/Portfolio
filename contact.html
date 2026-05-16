@@ -17,6 +17,44 @@
   <link rel="stylesheet" href="assets/css/plugins/select2.min.css">
   <link rel="stylesheet" href="assets/css/plugins/animate.css">
   <link rel="stylesheet" href="assets/css/style.css">
+  <!-- EmailJS SDK -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <style>
+    /* Contact Alert Styles */
+    .contact-alert {
+      display: none;
+      padding: 16px 22px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 20px;
+      animation: alertSlideIn 0.4s ease;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    @keyframes alertSlideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .contact-alert-success {
+      background: linear-gradient(135deg, #d4edda, #c3e6cb);
+      border-left: 5px solid #28a745;
+      color: #155724;
+    }
+    .contact-alert-error {
+      background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+      border-left: 5px solid #dc3545;
+      color: #721c24;
+    }
+    .contact-alert-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .contact-alert-text strong { display: block; font-size: 16px; }
+    .contact-alert-text span   { font-size: 13px; opacity: 0.85; }
+    #submitBtn:disabled { opacity: 0.7; cursor: not-allowed; }
+  </style>
 </head>
 
 <body>
@@ -37,22 +75,22 @@
             <div class="cs_nav">
               <ul class="cs_nav_list">
                 <li class="menu-item-has-children"><a href="index.html">Home</a>
-                  <ul>
+                  <!-- <ul>
                     <li><a href="index.html">Designer Landing</a></li>
                     <li><a href="home-v2.html">Developer Landing</a></li>
-                  </ul>
+                  </ul> -->
                 </li>
                 <li class="menu-item-has-children"><a href="about.html">About</a>
-                  <ul>
+                  <!-- <ul>
                     <li><a href="about.html">Designer About</a></li>
                     <li><a href="about-v2.html">Developer About</a></li>
-                  </ul>
+                  </ul> -->
                 </li>
-                <li class="menu-item-has-children"><a href="portfolio.html">Portfolio</a>
-                  <ul>
-                    <li><a href="portfolio.html">Portfolio</a></li>
-                    <li><a href="portfolio-details.html">Portfolio Details</a></li>
-                  </ul>
+                <li class="menu-item-has-children"><a href="project.html">Project</a>
+                  <!-- <ul>
+                    <li><a href="project.html">Project</a></li>
+                    <li><a href="project-details.html">Project Details</a></li>
+                  </ul> -->
                 </li>
                 <!-- <li class="menu-item-has-children"><a href="#">Pages</a>
                   <ul>
@@ -72,6 +110,11 @@
             </div>
           </div>
           <div class="cs_main_header_right">
+            <!-- <a href="#" id="hero-theme-toggle" class="cs_theme_toggle cs_dark_page" title="Switch Theme">
+              <div class="cs_toggle_thumb"></div>
+              <i class="fas fa-sun"></i>
+              <i class="fas fa-moon"></i>
+            </a> -->
             <a href="contact.html" class="cs_btn cs_style_1 cs_primary_font"><span>Hire Me</span></a>
           </div>
         </div>
@@ -88,7 +131,8 @@
       <div class="container">
         <div class="cs_height_45 cs_height_lg_45"></div>
         <h1 class="cs_hero_title cs_font_92 cs_extra_bold wow fadeInUp" data-wow-duration="0.8s" data-wow-delay="0.2s">
-          <span class="cs_gradient_text_2">Contact Us</span></h1>
+          <span class="cs_gradient_text_2">Contact Us</span>
+        </h1>
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="index.html">Home</a></li>
           <li class="breadcrumb-item active">Contact</li>
@@ -149,7 +193,8 @@
                 <div class="cs_iconbox_info">
                   <h4 class="cs_iconbox_title cs_font_24 cs_semi_bold">Direct email</h4>
                   <p class="cs_iconbox_text">Become an industry expert</p>
-                  <a class="cs_accent_color_2 cs_accent_color_hover cs_text_btn" href="contact.html">Send An Email</a>
+                  <a class="cs_accent_color_2 cs_accent_color_hover cs_text_btn" href="mailto:inbakesav@gmail.com">Send
+                    An Email</a>
                 </div>
               </div>
             </div>
@@ -171,26 +216,43 @@
             <h4 class="cs_form_title cs_font_36 cs_semi_bold m-0">Lets Talk</h4>
             <p class="cs_form_text">Got a project in mind? Fill in the form or send us.</p>
             <div class="cs_height_5 cs_height_lg_5"></div>
-            <form action="post">
-              <input class="form-control" type="text" name="f_name" id="f_name" placeholder="First name" required>
+            <!-- Alert Box -->
+            <div id="contactAlert" class="contact-alert" style="display:none;">
+              <div class="contact-alert-icon" id="alertIcon"></div>
+              <div class="contact-alert-text">
+                <strong id="alertTitle"></strong>
+                <span id="alertMsg"></span>
+              </div>
+            </div>
+            <form id="contactForm" onsubmit="sendContactEmail(event)">
+              <!-- Hidden combined name field for EmailJS template {{name}} -->
+              <input type="hidden" name="name" id="combined_name">
+              <!-- Row 1: First Name + Last Name -->
+              <div style="display:flex; gap:20px;">
+                <input class="form-control" type="text" id="f_name" placeholder="First Name *" required style="flex:1;">
+                <input class="form-control" type="text" id="l_name" placeholder="Last Name *" required style="flex:1;">
+              </div>
               <div class="cs_height_25 cs_height_lg_25"></div>
-              <input class="form-control" type="text" name="l_name" id="l_name" placeholder="Last name" required>
+              <!-- Row 2: Email + Phone -->
+              <div style="display:flex; gap:20px;">
+                <input class="form-control" type="email" name="email" id="email" placeholder="Email *" required style="flex:1;">
+                <input class="form-control" type="tel" name="phone" id="phone"
+                  placeholder="Phone Number * (10 digits)"
+                  maxlength="10"
+                  pattern="[0-9]{10}"
+                  oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,10)"
+                  title="Please enter exactly 10 digits"
+                  required style="flex:1;">
+              </div>
+              <div id="phoneError" style="color:#dc3545; font-size:13px; margin-top:5px; display:none;">⚠️ Phone number must be exactly 10 digits (numbers only).</div>
               <div class="cs_height_25 cs_height_lg_25"></div>
-              <input class="form-control" type="email" name="email" id="email" placeholder="Email" required>
+              <!-- Row 3: Subject → maps to {{title}} in EmailJS template -->
+              <input class="form-control" type="text" name="title" id="subject" placeholder="Subject *" required>
               <div class="cs_height_25 cs_height_lg_25"></div>
-              <!-- <select class="form-control cs_select_option" name="budget-range"
-                id="budget-range" required>
-                <option value="" selected disabled>Select your budget</option>
-                <option value="0-100">$0 - $100</option>
-                <option value="100-200">$100 - $200</option>
-                <option value="200-500">$200 - $500</option>
-                <option value="500-1000">$500 - $1000</option>
-              </select>
-              <div class="cs_height_25 cs_height_lg_25"></div> -->
-              <textarea class="form-control" name="message" placeholder="Your message" cols="30" rows="5"
-                required></textarea>
+              <!-- Row 4: Message -->
+              <textarea class="form-control" name="message" id="message" placeholder="Your Message *" cols="30" rows="5" required></textarea>
               <div class="cs_height_25 cs_height_lg_25"></div>
-              <button type="submit" class="cs_btn cs_style_1 cs_primary_font"><span>Send Message</span></button>
+              <button type="submit" id="submitBtn" class="cs_btn cs_style_1 cs_primary_font"><span id="submitBtnText">Send Message</span></button>
             </form>
           </div>
         </div>
@@ -209,7 +271,7 @@
     <div class="container">
       <div class="cs_footer_cta">
         <h2 class="cs_font_92 cs_gradient_text_2 cs_semi_bold">Check protfolio</h2>
-        <a href="portfolio.html" class="cs_btn cs_style_1 cs_primary_font"><span>Portfolio</span></a>
+        <a href="project.html" class="cs_btn cs_style_1 cs_primary_font"><span>Project</span></a>
       </div>
       <div class="cs_copyright">© 2026 <a href="#">Inbarasi M</a>. All rights reserved</div>
     </div>
@@ -223,6 +285,98 @@
   <script src="assets/js/plugins/odometer.min.js"></script>
   <script src="assets/js/plugins/wow.min.js"></script>
   <script src="assets/js/main.js"></script>
+  <script>
+    // ─── EmailJS Init ───────────────────────────────────────────────
+    emailjs.init({ publicKey: 'O3Hw1Kd8pFLrxufJg' }); // ← Replace with your EmailJS Public Key
+
+    // ─── Alert Helper ───────────────────────────────────────────────
+    function showAlert(type, title, msg) {
+      var box   = document.getElementById('contactAlert');
+      var icon  = document.getElementById('alertIcon');
+      var ttl   = document.getElementById('alertTitle');
+      var txt   = document.getElementById('alertMsg');
+
+      box.className = 'contact-alert contact-alert-' + type;
+      icon.textContent = type === 'success' ? '✅' : '❌';
+      ttl.textContent  = title;
+      txt.textContent  = msg;
+      box.style.display = 'flex';
+
+      // Auto-hide after 6 seconds
+      setTimeout(function () {
+        box.style.display = 'none';
+      }, 6000);
+
+      // Scroll alert into view smoothly
+      box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // ─── Phone: block non-numeric keystrokes ────────────────────────
+    document.addEventListener('DOMContentLoaded', function () {
+      var phoneInput = document.getElementById('phone');
+      phoneInput.addEventListener('keypress', function (e) {
+        if (!/[0-9]/.test(e.key)) e.preventDefault();
+      });
+      phoneInput.addEventListener('paste', function (e) {
+        e.preventDefault();
+        var pasted = (e.clipboardData || window.clipboardData).getData('text');
+        var digits = pasted.replace(/[^0-9]/g, '').slice(0, 10);
+        this.value = digits;
+      });
+    });
+
+    // ─── Send Email ─────────────────────────────────────────────────
+    function sendContactEmail(e) {
+      e.preventDefault();
+
+      // Phone validation — must be exactly 10 digits
+      var phoneVal = document.getElementById('phone').value.trim();
+      var phoneErr = document.getElementById('phoneError');
+      if (!/^[0-9]{10}$/.test(phoneVal)) {
+        phoneErr.style.display = 'block';
+        document.getElementById('phone').focus();
+        return;
+      }
+      phoneErr.style.display = 'none';
+
+      // Combine first + last name into hidden {{name}} field
+      var firstName = document.getElementById('f_name').value.trim();
+      var lastName  = document.getElementById('l_name').value.trim();
+      document.getElementById('combined_name').value = firstName + ' ' + lastName;
+
+      var btn     = document.getElementById('submitBtn');
+      var btnText = document.getElementById('submitBtnText');
+
+      // Loading state
+      btn.disabled        = true;
+      btnText.textContent = '⏳ Sending...';
+
+      // EmailJS — template variables: {{name}}, {{email}}, {{title}}, {{message}}, {{phone}}
+      emailjs.sendForm(
+        'service_mclla8i',
+        'template_sowjzqo',
+        '#contactForm'
+      ).then(function () {
+        showAlert(
+          'success',
+          '✉️ Message Sent Successfully!',
+          'Thank you for reaching out. I will contact you soon!'
+        );
+        document.getElementById('contactForm').reset();
+        btn.disabled        = false;
+        btnText.textContent = 'Send Message';
+      }, function (error) {
+        console.error('EmailJS error:', error);
+        showAlert(
+          'error',
+          'Failed to Send Message',
+          'Something went wrong. Please try again or email directly: inbakesa@gmail.com'
+        );
+        btn.disabled        = false;
+        btnText.textContent = 'Send Message';
+      });
+    }
+  </script>
 </body>
 
 </html>
